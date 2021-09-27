@@ -64,6 +64,18 @@ type CallSiteIdItem struct {
 type MethodHandleItem struct {
 }
 
+type MapList struct {
+	Size uint32    //size of the list, in entries
+	List []MapItem //elements of the list
+}
+
+type MapItem struct {
+	Type   uint16 //type of the items; see table below
+	Unused uint16 //(unused)
+	Size   uint32 //count of the number of items to be found at the indicated offset
+	Offset uint32 //offset from the start of the file to the items in question
+}
+
 type AccessFlags uint64
 
 const (
