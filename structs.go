@@ -1,5 +1,7 @@
 package godex
 
+type uleb128 uint64
+
 type DexFile struct {
 	Header        *HeaderItem
 	StringIds     *[]StringIdItem
@@ -41,27 +43,59 @@ type HeaderItem struct {
 }
 
 type StringIdItem struct {
+	StringDataOff uint32 //offset from the start of the file to the string data for this item. The offset should be to a location in the data section, and the data should be in the format specified by "string_data_item" below. There is no alignment requirement for the offset.
+}
+
+type StringDataItem struct {
+	Utf16Size uleb128 //size of this string, in UTF-16 code units
+	Data      []uint8 //a series of MUTF-8 code units followed by a byte of value 0
 }
 
 type TypeIdItem struct {
+	DescriptorIdx uint32 //index into the StringIds list for the descriptor string of this type
 }
 
 type ProtoIdItem struct {
+	ShortyIdx     uint32 //index into the StringIds list for the short-form descriptor string of this prototype
+	ReturnTypeIdx uint32 //index into the TypeIds list for the return type of this prototype
+	ParametersOff uint32 //offset from the start of the file to the list of parameter types for this prototype, or 0 if this prototype has no parameters
 }
 
 type FieldIdItem struct {
+	ClassIdx uint16 //index into the TypeIdx list for the definer of this field
+	TypeIdx  uint16 //index into the TypeIdx list for the type of this field
+	NameIdx  uint32 //index into the StringIdx list for the name of this field
 }
 
 type MethodIdItem struct {
+	ClassIdx uint16 //index into the TypeIdx list for the definer of this method
+	ProtoIdx uint16 //index into the ProtoIds list for the prototype of this method
+	NameIdx  uint32 //index into the StringIds list for the name of this method
 }
 
 type ClassDefItem struct {
+	ClassIdx        uint32 //index into the TypeIds list for this class
+	AccessFlags     uint32 //access flags for the class (public, final, etc.)
+	SuperClassIdx   uint32 //index into the TypeIds list for the superclass, or the constant value NO_INDEX if this class has no superclass
+	InterfacesOff   uint32 //offset from the start of the file to the list of interfaces, or 0 if there are none
+	SourceFileIdx   uint32 //index into the StringIds list for the name of the file containing the original source for (at least most of) this class, or the special value NO_INDEX to represent a lack of this information.
+	AnnotationsOff  uint32 //offset from the start of the file to the annotations structure for this class
+	ClassDataOff    uint32 //offset from the start of the file to the associated class data for this item
+	StaticValuesOff uint32 //offset from the start of the file to the list of initial values for static fields
 }
 
 type CallSiteIdItem struct {
+	CallSiteOff uint32 //offset from the start of the file to call site definition
+}
+
+type CallSiteItem struct {
 }
 
 type MethodHandleItem struct {
+	MethodHandleType uint16 //type of the method handle
+	Unused1          uint16 //(unused)
+	FieldOrMethodId  uint16 //Field or method id depending on whether the method handle type is an accessor or a method invoker
+	Unused2          uint16 //(unused)
 }
 
 type MapList struct {
