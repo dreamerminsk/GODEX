@@ -30,6 +30,7 @@ jobs:
       - run: flutter analyze
       - run: flutter test
       - run: flutter build apk --debug
+      - run: flutter build appbundle
       - uses: ncipollo/release-action@v1
         with:
          artifacts: "build/app/outputs/apk/debug/*.apk"
